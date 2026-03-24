@@ -1,167 +1,602 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixoart - PixelArt Dönüştürücü</title>
+    <title>Pixoart Studio — Pixel Art Converter</title>
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="LOGOpixel.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎨 Pixoart BETA</h1>
-            <p>Gelişmiş algoritması ile fotoğraflarınızı PixelArt'a dönüştürün.</p>
+    <!-- SIDEBAR NAV -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="LOGOpixel.png" alt="Pixoart" width="36">
+            <span>Pixoart</span>
         </div>
 
-        <div class="main-content">
-            <div class="upload-section">
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">📁</div>
-                    <div class="upload-text">Görselinizi buraya bırakın veya tıklayarak seçin</div>
-                    <div class="upload-subtext">JPG, PNG, GIF, WebP desteklenir (maks. 20MB)</div>
-                </div>
-                <input type="file" id="fileInput" accept="image/*">
+        <nav class="sidebar-nav">
+            <button class="nav-btn active" data-tab="convert" title="Dönüştür / Convert">
+                <i class="fas fa-magic"></i><span data-i18n="tab_convert">Dönüştür</span>
+            </button>
+            <button class="nav-btn" data-tab="animate" title="Animasyon / Animation">
+                <i class="fas fa-film"></i><span data-i18n="tab_animate">Animasyon</span>
+            </button>
+            <button class="nav-btn" data-tab="spritesheet" title="Sprite Sheet">
+                <i class="fas fa-th"></i><span data-i18n="tab_sprite">Sprite Sheet</span>
+            </button>
+            <button class="nav-btn" data-tab="palette" title="Renk Paleti / Palette">
+                <i class="fas fa-palette"></i><span data-i18n="tab_palette">Palet</span>
+            </button>
+            <button class="nav-btn" data-tab="export" title="Export">
+                <i class="fas fa-file-export"></i><span data-i18n="tab_export">Export</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="https://discord.gg/8btjygjWB8" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+            <a href="https://github.com/JaspersWq" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="app-main">
+
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <h1><span class="brand-pixel">Pixo</span><span class="brand-art">art</span> <span class="badge">STUDIO</span></h1>
             </div>
-
-            <div class="controls hidden" id="controls">
-                <div class="control-group">
-                    <h3>🎨 Otomatik Ayar Verin</h3>
-                    <div class="preset-buttons">
-                        <button class="preset-btn active" data-preset="classic">Klasik</button>
-                        <button class="preset-btn" data-preset="retro">Retro Oyun</button>
-                        <button class="preset-btn" data-preset="modern">Modern</button>
-                        <button class="preset-btn" data-preset="artistic">Sanatsal</button>
-                    </div>
+            <div class="header-right">
+                <div class="lang-switcher">
+                    <button class="lang-btn active" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
                 </div>
-
-                <div class="control-group">
-                    <h3>🔧 Piksel Yapılandırması</h3>
-                    <div class="slider-container">
-                        <label for="pixelSize">Piksel blok boyutu</label>
-                        <input type="range" id="pixelSize" class="slider" min="2" max="32" value="8">
-                        <div class="value-display" id="pixelSizeValue">8px</div>
-                    </div>
-                    <div class="slider-container">
-                        <label for="resolution">Çıktı çözünürlük ölçeği</label>
-                        <input type="range" id="resolution" class="slider" min="1" max="8" value="4">
-                        <div class="value-display" id="resolutionValue">4x</div>
-                    </div>
+                <div class="file-status" id="fileStatus">
+                    <i class="fas fa-image"></i>
+                    <span id="fileStatusText" data-i18n="no_file">Görsel yüklenmedi</span>
                 </div>
+            </div>
+        </header>
 
-                <div class="control-group">
-                    <h3>🌈 Renk İşleme</h3>
-                    <div class="slider-container">
-                        <label for="colorReduction">Renk paleti boyutu</label>
-                        <input type="range" id="colorReduction" class="slider" min="4" max="256" value="32">
-                        <div class="value-display" id="colorReductionValue">32 renk</div>
-                    </div>
-                    <div class="select-container">
-                        <label for="colorAlgorithm">Renk kuantizasyon yöntemi</label>
-                        <select id="colorAlgorithm" class="custom-select">
-                            <option value="kmeans">K-Means Kümeleme</option>
-                            <option value="octree">Octree Kuantizasyon</option>
-                            <option value="median">Median Cut</option>
-                            <option value="uniform">Uniform Kuantizasyon</option>
-                        </select>
-                    </div>
-                </div>
+        <!-- TABS CONTENT -->
+        <div class="tab-content" id="tab-convert">
+            <div class="workspace">
+                <!-- LEFT PANEL: Controls -->
+                <div class="panel controls-panel">
+                    
+                    <!-- Upload -->
+                    <section class="panel-section">
+                        <div class="upload-zone" id="uploadZone">
+                            <div class="upload-inner">
+                                <div class="upload-icon-wrap"><i class="fas fa-cloud-upload-alt"></i></div>
+                                <p class="upload-main" data-i18n="upload_main">Görsel Yükle</p>
+                                <p class="upload-sub" data-i18n="upload_sub">Sürükle & bırak · JPG PNG GIF WebP · Max 20MB</p>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*">
+                    </section>
 
-                <div class="control-group">
-                    <h3>✨ Geliştirme Filtreleri</h3>
-                    <div class="slider-container">
-                        <label for="contrast">Kontrast arttırımı</label>
-                        <input type="range" id="contrast" class="slider" min="0" max="100" value="0">
-                        <div class="value-display" id="contrastValue">0%</div>
-                    </div>
-                    <div class="slider-container">
-                        <label for="saturation">Renk doygunluğu</label>
-                        <input type="range" id="saturation" class="slider" min="0" max="200" value="100">
-                        <div class="value-display" id="saturationValue">100%</div>
-                    </div>
-                    <div class="slider-container">
-                        <label for="sharpening">Kenar keskinliği</label>
-                        <input type="range" id="sharpening" class="slider" min="0" max="100" value="0">
-                        <div class="value-display" id="sharpeningValue">0%</div>
-                    </div>
-                </div>
+                    <!-- Presets -->
+                    <section class="panel-section">
+                        <div class="section-title"><i class="fas fa-bolt"></i> <span data-i18n="presets">Hızlı Preset</span></div>
+                        <div class="preset-grid">
+                            <button class="preset-chip active" data-preset="classic">
+                                <span class="preset-icon">🕹️</span> <span data-i18n="preset_classic">Klasik</span>
+                            </button>
+                            <button class="preset-chip" data-preset="retro">
+                                <span class="preset-icon">👾</span> Retro
+                            </button>
+                            <button class="preset-chip" data-preset="modern">
+                                <span class="preset-icon">✨</span> <span data-i18n="preset_modern">Modern</span>
+                            </button>
+                            <button class="preset-chip" data-preset="gameboy">
+                                <span class="preset-icon">🟩</span> Game Boy
+                            </button>
+                            <button class="preset-chip" data-preset="nes">
+                                <span class="preset-icon">🔴</span> NES
+                            </button>
+                            <button class="preset-chip" data-preset="cga">
+                                <span class="preset-icon">🟦</span> CGA
+                            </button>
+                        </div>
+                    </section>
 
-                <div class="control-group">
-                    <h3>🎯 Gelişmiş Seçenekler</h3>
-                    <div class="checkbox-container">
-                        <div class="custom-checkbox">
+                    <!-- Pixel Config -->
+                    <section class="panel-section">
+                        <div class="section-title"><i class="fas fa-th-large"></i> Piksel Yapılandırması</div>
+                        <div class="control-row">
+                            <label>Blok Boyutu <span class="ctrl-val" id="pixelSizeValue">8px</span></label>
+                            <input type="range" class="ctrl-slider" id="pixelSize" min="2" max="32" value="8">
+                        </div>
+                        <div class="control-row">
+                            <label>Çıktı Ölçeği <span class="ctrl-val" id="resolutionValue">4x</span></label>
+                            <input type="range" class="ctrl-slider" id="resolution" min="1" max="8" value="4">
+                        </div>
+                    </section>
+
+                    <!-- Color -->
+                    <section class="panel-section">
+                        <div class="section-title"><i class="fas fa-fill-drip"></i> Renk İşleme</div>
+                        <div class="control-row">
+                            <label>Palet Boyutu <span class="ctrl-val" id="colorReductionValue">32</span></label>
+                            <input type="range" class="ctrl-slider" id="colorReduction" min="2" max="256" value="32">
+                        </div>
+                        <div class="control-row">
+                            <label>Kuantizasyon</label>
+                            <select class="ctrl-select" id="colorAlgorithm">
+                                <option value="kmeans">K-Means</option>
+                                <option value="octree">Octree</option>
+                                <option value="median">Median Cut</option>
+                                <option value="uniform">Uniform</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <!-- Filters -->
+                    <section class="panel-section">
+                        <div class="section-title"><i class="fas fa-sliders-h"></i> Filtreler</div>
+                        <div class="control-row">
+                            <label>Kontrast <span class="ctrl-val" id="contrastValue">0%</span></label>
+                            <input type="range" class="ctrl-slider" id="contrast" min="-50" max="100" value="0">
+                        </div>
+                        <div class="control-row">
+                            <label>Doygunluk <span class="ctrl-val" id="saturationValue">100%</span></label>
+                            <input type="range" class="ctrl-slider" id="saturation" min="0" max="200" value="100">
+                        </div>
+                        <div class="control-row">
+                            <label>Keskinlik <span class="ctrl-val" id="sharpeningValue">0%</span></label>
+                            <input type="range" class="ctrl-slider" id="sharpening" min="0" max="100" value="0">
+                        </div>
+                        <div class="control-row">
+                            <label>Parlaklık <span class="ctrl-val" id="brightnessValue">0%</span></label>
+                            <input type="range" class="ctrl-slider" id="brightness" min="-50" max="50" value="0">
+                        </div>
+                    </section>
+
+                    <!-- Advanced -->
+                    <section class="panel-section">
+                        <div class="section-title"><i class="fas fa-cog"></i> Gelişmiş</div>
+                        <label class="toggle-row">
                             <input type="checkbox" id="dithering">
-                            <div class="checkmark"></div>
-                        </div>
-                        <label for="dithering">Daha yumuşak geçişler için dithering etkinleştir</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <div class="custom-checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Dithering (Floyd-Steinberg)</span>
+                        </label>
+                        <label class="toggle-row">
                             <input type="checkbox" id="edgeEnhancement">
-                            <div class="checkmark"></div>
-                        </div>
-                        <label for="edgeEnhancement">Kenarları ve çizgileri belirginleştir</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <div class="custom-checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Kenar Belirginleştirme</span>
+                        </label>
+                        <label class="toggle-row">
                             <input type="checkbox" id="antiAliasing" checked>
-                            <div class="checkmark"></div>
+                            <div class="toggle-switch"></div>
+                            <span>Anti-Aliasing</span>
+                        </label>
+                        <label class="toggle-row">
+                            <input type="checkbox" id="transparencyMode">
+                            <div class="toggle-switch"></div>
+                            <span>Transparan Arka Plan (PNG)</span>
+                        </label>
+                    </section>
+
+                    <!-- Generate -->
+                    <section class="panel-section">
+                        <button id="processBtn" class="btn-generate">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                            Pixel Art Oluştur
+                        </button>
+                    </section>
+                </div>
+
+                <!-- RIGHT PANEL: Preview -->
+                <div class="panel preview-panel">
+                    <div class="preview-header">
+                        <div class="preview-tabs">
+                            <button class="prev-tab active" data-view="split">Karşılaştır</button>
+                            <button class="prev-tab" data-view="original">Orijinal</button>
+                            <button class="prev-tab" data-view="result">Sonuç</button>
                         </div>
-                        <label for="antiAliasing">Pürüzsüz eğriler için kenar yumuşatma</label>
+                        <div class="preview-info" id="previewInfo"></div>
                     </div>
-                    <div class="select-container">
-                        <label for="outputFormat">Çıktı formatı</label>
-                        <select id="outputFormat" class="custom-select">
-                            <option value="png">PNG (En İyi Kalite)</option>
-                            <option value="jpg">JPEG (Daha Küçük Boyut)</option>
-                            <option value="webp">WebP (Modern)</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="control-group">
-                    <h3>⚡ PixelArt'a Çevir</h3>
-                    <button id="processBtn" class="process-btn"> OLUŞTUR
-                    </button>
+                    <div class="preview-area" id="previewArea">
+                        <div class="preview-empty" id="previewEmpty">
+                            <div class="empty-icon">🎨</div>
+                            <p>Görsel yükleyin ve oluşturun</p>
+                        </div>
+
+                        <div class="split-view hidden" id="splitView">
+                            <div class="split-pane">
+                                <div class="split-label">Orijinal</div>
+                                <img id="originalImage" class="preview-img" alt="Orijinal">
+                            </div>
+                            <div class="split-divider"></div>
+                            <div class="split-pane">
+                                <div class="split-label">Pixel Art</div>
+                                <canvas id="pixelCanvas" class="preview-img"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action bar -->
+                    <div class="action-bar hidden" id="actionBar">
+                        <div class="action-left">
+                            <div class="img-stats" id="imgStats"></div>
+                        </div>
+                        <div class="action-right">
+                            <button class="btn-action" id="copyBtn" title="Panoya Kopyala">
+                                <i class="fas fa-copy"></i> Kopyala
+                            </button>
+                            <div class="download-group">
+                                <button class="btn-download" id="downloadBtn">
+                                    <i class="fas fa-download"></i> İndir
+                                </button>
+                                <div class="dl-format-row">
+                                    <label class="fmt-chip active" data-fmt="png">
+                                        <input type="radio" name="dlFormat" value="png" checked> PNG
+                                    </label>
+                                    <label class="fmt-chip" data-fmt="jpg">
+                                        <input type="radio" name="dlFormat" value="jpg"> JPG
+                                    </label>
+                                    <label class="fmt-chip" data-fmt="webp">
+                                        <input type="radio" name="dlFormat" value="webp"> WebP
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="results hidden" id="results">
-                <div class="image-container">
-                    <h3>📷 Orijinal Görsel</h3>
-                    <div class="image-wrapper">
-                        <img id="originalImage" class="preview-image" alt="Orijinal">
-                    </div>
-                </div>
-
-                <div class="image-container">
-                    <h3>🎨 PixelArt</h3>
-                    <div class="image-wrapper">
-                        <canvas id="pixelCanvas" class="preview-image"></canvas>
-                    </div>
-                    <button id="downloadBtn" class="download-btn">
-                        ⬇️ İNDİR
-                    </button>
-                </div>
-            </div>
-        </div><br>
-
-        <div class="footer">
-            <p>© 2025 Developed by JaspersArt - Pixoart Tüm Hakları Saklıdır.</p><br>
-            <a id="discord" href="https://discord.gg/8btjygjWB8" target="_blank"><i class="fab fa-discord"></i></a>
-            <a id="github" href="https://github.com/JaspersWq" target="_blank"><i class="fab fa-github"></i></a>
-            <a id="linkedin" href="https://www.linkedin.com/in/enes-ekici-0449ba255/" target="_blank"><i class="fab fa-linkedin"></i></a>
         </div>
-    </div>
 
+        <!-- TAB: ANIMATE -->
+        <div class="tab-content hidden" id="tab-animate">
+            <div class="workspace single-panel">
+                <div class="panel full-panel">
+                    <div class="anim-header">
+                        <div class="section-title"><i class="fas fa-film"></i> <span data-i18n="anim_title">Animasyon Editörü</span></div>
+                        <p class="panel-desc" data-i18n="anim_desc">GIF veya kare dizisi yükleyin — her kareyi pixel art'a dönüştürün ve oynatın, GIF veya sprite sheet olarak kaydedin.</p>
+                    </div>
+
+                    <div class="anim-workspace">
+                        <!-- Source -->
+                        <div class="anim-source-row">
+                            <div class="anim-drop-zone" id="animDropZone">
+                                <i class="fas fa-film"></i>
+                                <p data-i18n="anim_drop">GIF veya birden fazla kare görsel sürükleyin</p>
+                                <div class="anim-drop-btns">
+                                    <button class="btn-sm btn-primary" onclick="document.getElementById('animGifInput').click()">
+                                        <i class="fas fa-file-image"></i> GIF Yükle
+                                    </button>
+                                    <button class="btn-sm" onclick="document.getElementById('animFramesInput').click()">
+                                        <i class="fas fa-images"></i> <span data-i18n="anim_load_frames">Kareler Yükle</span>
+                                    </button>
+                                </div>
+                                <input type="file" id="animGifInput" accept="image/gif">
+                                <input type="file" id="animFramesInput" accept="image/*" multiple>
+                            </div>
+
+                            <div class="anim-settings-col">
+                                <div class="section-title"><i class="fas fa-cog"></i> <span data-i18n="anim_settings">Animasyon Ayarları</span></div>
+                                <div class="control-row">
+                                    <label data-i18n="anim_pixel_size">Piksel Boyutu <span class="ctrl-val" id="animPixelSizeValue">8px</span></label>
+                                    <input type="range" class="ctrl-slider" id="animPixelSize" min="2" max="32" value="8">
+                                </div>
+                                <div class="control-row">
+                                    <label data-i18n="anim_fps">FPS <span class="ctrl-val" id="animFpsValue">12</span></label>
+                                    <input type="range" class="ctrl-slider" id="animFps" min="1" max="60" value="12">
+                                </div>
+                                <div class="control-row">
+                                    <label data-i18n="anim_colors">Renk Sayısı <span class="ctrl-val" id="animColorsValue">16</span></label>
+                                    <input type="range" class="ctrl-slider" id="animColors" min="2" max="256" value="16">
+                                </div>
+                                <div class="control-row">
+                                    <label data-i18n="anim_scale">Ölçek <span class="ctrl-val" id="animScaleValue">3x</span></label>
+                                    <input type="range" class="ctrl-slider" id="animScale" min="1" max="8" value="3">
+                                </div>
+                                <label class="toggle-row">
+                                    <input type="checkbox" id="animDithering">
+                                    <div class="toggle-switch"></div>
+                                    <span data-i18n="dithering">Dithering</span>
+                                </label>
+                                <label class="toggle-row">
+                                    <input type="checkbox" id="animLoopCheck" checked>
+                                    <div class="toggle-switch"></div>
+                                    <span data-i18n="anim_loop">Döngü</span>
+                                </label>
+                                <button class="btn-generate" id="animProcessBtn" disabled style="margin-top:0.75rem">
+                                    <i class="fas fa-wand-magic-sparkles"></i> <span data-i18n="anim_process">Animasyonu Dönüştür</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Frame strip -->
+                        <div class="anim-frames-section" id="animFramesSection" style="display:none">
+                            <div class="anim-frames-header">
+                                <span class="section-title"><i class="fas fa-layer-group"></i> <span data-i18n="anim_frames">Kareler</span> <span class="frame-count-badge" id="animFrameCount">0</span></span>
+                                <div class="anim-strip-actions">
+                                    <button class="btn-xs" id="animAddFrameBtn"><i class="fas fa-plus"></i> <span data-i18n="add_frame">Kare Ekle</span></button>
+                                    <button class="btn-xs" id="animClearBtn"><i class="fas fa-trash"></i> <span data-i18n="clear">Temizle</span></button>
+                                    <input type="file" id="animAddFrameInput" accept="image/*" multiple style="display:none">
+                                </div>
+                            </div>
+                            <div class="anim-strip" id="animStrip"></div>
+                        </div>
+
+                        <!-- Preview + export -->
+                        <div class="anim-preview-section hidden" id="animPreviewSection">
+                            <div class="anim-preview-main">
+                                <div class="anim-canvas-wrap">
+                                    <canvas id="animPreviewCanvas" class="anim-canvas"></canvas>
+                                </div>
+                                <div class="anim-playback">
+                                    <button class="anim-ctrl-btn" id="animPlayBtn"><i class="fas fa-play"></i></button>
+                                    <button class="anim-ctrl-btn" id="animPrevBtn"><i class="fas fa-step-backward"></i></button>
+                                    <button class="anim-ctrl-btn" id="animNextBtn"><i class="fas fa-step-forward"></i></button>
+                                    <span class="anim-frame-indicator" id="animFrameIndicator">1 / 1</span>
+                                </div>
+                            </div>
+                            <div class="anim-export-col">
+                                <div class="section-title"><i class="fas fa-file-export"></i> <span data-i18n="export">Export</span></div>
+                                <div class="anim-export-cards">
+                                    <button class="anim-export-btn" id="animExportGif">
+                                        <i class="fas fa-file-image"></i>
+                                        <span>GIF</span>
+                                        <small data-i18n="anim_gif_desc">Animasyonlu GIF</small>
+                                    </button>
+                                    <button class="anim-export-btn" id="animExportSheet">
+                                        <i class="fas fa-th"></i>
+                                        <span>Sprite Sheet</span>
+                                        <small data-i18n="anim_sheet_desc">Yatay atlas PNG</small>
+                                    </button>
+                                    <button class="anim-export-btn" id="animExportFrames">
+                                        <i class="fas fa-images"></i>
+                                        <span>PNG Frames</span>
+                                        <small data-i18n="anim_frames_desc">Ayrı PNG kareler</small>
+                                    </button>
+                                    <button class="anim-export-btn anim-aseprite-btn" id="animExportAseprite">
+                                        <i class="fas fa-pen-nib"></i>
+                                        <span>.aseprite</span>
+                                        <small>Aseprite Format</small>
+                                    </button>
+                                </div>
+                                <div class="aseprite-note" id="asepriteNote" style="display:none">
+                                    <i class="fas fa-info-circle"></i>
+                                    <p data-i18n="aseprite_note">Tarayıcı güvenlik kısıtlamaları nedeniyle ikili .aseprite formatı doğrudan yazılamaz. Bunun yerine sprite sheet PNG + Aseprite'e import talimatları içeren JSON dosyası indirilir.</p>
+                                </div>
+                                <div class="anim-json-preview hidden" id="animJsonPreview">
+                                    <div class="code-block-wrap">
+                                        <div class="code-header">
+                                            <span>aseprite-import.json</span>
+                                            <button class="btn-xs" id="copyAseBtn"><i class="fas fa-copy"></i></button>
+                                        </div>
+                                        <pre class="code-block" id="aseJsonContent" style="max-height:200px"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SPRITE SHEET -->
+        <div class="tab-content hidden" id="tab-spritesheet">
+            <div class="workspace single-panel">
+                <div class="panel full-panel">
+                    <div class="sprite-header">
+                        <div class="section-title"><i class="fas fa-th"></i> Sprite Sheet Oluşturucu</div>
+                        <p class="panel-desc">Birden fazla görsel yükleyerek otomatik sprite sheet oluşturun. Unity, Godot ve diğer oyun motorlarıyla uyumlu atlas çıktısı.</p>
+                    </div>
+
+                    <div class="sprite-workspace">
+                        <!-- Drop zone -->
+                        <div class="sprite-upload-zone" id="spriteUploadZone">
+                            <i class="fas fa-images"></i>
+                            <p>Birden fazla görsel seçin veya sürükleyin</p>
+                            <button class="btn-sm" onclick="document.getElementById('spriteFileInput').click()">
+                                <i class="fas fa-plus"></i> Görsel Ekle
+                            </button>
+                            <input type="file" id="spriteFileInput" accept="image/*" multiple>
+                        </div>
+
+                        <!-- Sprite settings -->
+                        <div class="sprite-settings">
+                            <div class="sprite-config">
+                                <div class="config-group">
+                                    <label>Sütun Sayısı</label>
+                                    <input type="number" class="ctrl-number" id="spriteCols" value="4" min="1" max="32">
+                                </div>
+                                <div class="config-group">
+                                    <label>Kare Boyutu (px)</label>
+                                    <input type="number" class="ctrl-number" id="spriteFrameSize" value="64" min="8" max="512" step="8">
+                                </div>
+                                <div class="config-group">
+                                    <label>Boşluk (px)</label>
+                                    <input type="number" class="ctrl-number" id="spritePadding" value="2" min="0" max="32">
+                                </div>
+                                <div class="config-group">
+                                    <label>Piksel Blok</label>
+                                    <input type="number" class="ctrl-number" id="spritePixelSize" value="8" min="2" max="32">
+                                </div>
+                            </div>
+
+                            <div class="sprite-options">
+                                <label class="toggle-row">
+                                    <input type="checkbox" id="spriteTransparent" checked>
+                                    <div class="toggle-switch"></div>
+                                    <span>Transparan arka plan</span>
+                                </label>
+                                <label class="toggle-row">
+                                    <input type="checkbox" id="spriteMetadata">
+                                    <div class="toggle-switch"></div>
+                                    <span>JSON metadata çıktısı</span>
+                                </label>
+                            </div>
+
+                            <div class="sprite-actions">
+                                <button class="btn-generate" id="generateSpriteBtn" disabled>
+                                    <i class="fas fa-layer-group"></i> Sprite Sheet Oluştur
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Frame preview -->
+                        <div class="frames-container" id="framesContainer">
+                            <div class="frames-grid" id="framesGrid"></div>
+                        </div>
+
+                        <!-- Sheet preview -->
+                        <div class="sheet-preview hidden" id="sheetPreview">
+                            <div class="section-title">Sprite Sheet Önizleme</div>
+                            <div class="sheet-canvas-wrap">
+                                <canvas id="spriteSheetCanvas" class="sheet-canvas"></canvas>
+                            </div>
+                            <div class="sheet-actions">
+                                <button class="btn-download" id="downloadSheetBtn">
+                                    <i class="fas fa-download"></i> PNG İndir
+                                </button>
+                                <button class="btn-action" id="downloadMetaBtn">
+                                    <i class="fas fa-code"></i> JSON İndir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PALETTE -->
+        <div class="tab-content hidden" id="tab-palette">
+            <div class="workspace single-panel">
+                <div class="panel full-panel">
+                    <div class="section-title"><i class="fas fa-palette"></i> Renk Paleti Analizi</div>
+                    <p class="panel-desc">Son oluşturulan görselinizdeki renk paletini görüntüleyin ve oyun motorunuza aktarın.</p>
+
+                    <div class="palette-workspace">
+                        <div class="palette-display" id="paletteDisplay">
+                            <div class="palette-empty">Önce bir pixel art oluşturun.</div>
+                        </div>
+
+                        <div class="palette-exports">
+                            <div class="section-title" style="margin-top:1.5rem">Export Formatları</div>
+                            <div class="export-grid">
+                                <button class="export-card" id="exportGPL">
+                                    <i class="fas fa-file-code"></i>
+                                    <span>.GPL</span>
+                                    <small>GIMP / Aseprite</small>
+                                </button>
+                                <button class="export-card" id="exportASE">
+                                    <i class="fas fa-file-code"></i>
+                                    <span>.ACO</span>
+                                    <small>Adobe Photoshop</small>
+                                </button>
+                                <button class="export-card" id="exportHEX">
+                                    <i class="fas fa-hashtag"></i>
+                                    <span>HEX List</span>
+                                    <small>CSS / Web</small>
+                                </button>
+                                <button class="export-card" id="exportUnity">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>Unity C#</span>
+                                    <small>Color Array</small>
+                                </button>
+                                <button class="export-card" id="exportGodot">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>Godot GDScript</span>
+                                    <small>Color Array</small>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="palette-preview-code" id="paletteCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: EXPORT -->
+        <div class="tab-content hidden" id="tab-export">
+            <div class="workspace single-panel">
+                <div class="panel full-panel">
+                    <div class="section-title"><i class="fas fa-file-export"></i> Oyun Motoru Export</div>
+                    <p class="panel-desc">Pixel art'ınızı oyun motorunuza uygun formatlarda dışa aktarın.</p>
+
+                    <div class="export-workspace">
+                        <div class="engine-cards">
+                            <div class="engine-card" id="engineUnity">
+                                <div class="engine-icon">🎮</div>
+                                <h3>Unity</h3>
+                                <p>Sprite import settings, pixel-perfect kamera ayarları ve C# renk paleti</p>
+                                <div class="engine-actions">
+                                    <button class="btn-sm" id="unitySettingsBtn">Import Ayarları</button>
+                                    <button class="btn-sm btn-primary" id="unityExportBtn">Export</button>
+                                </div>
+                            </div>
+
+                            <div class="engine-card" id="engineGodot">
+                                <div class="engine-icon">🐦</div>
+                                <h3>Godot 4</h3>
+                                <p>Texture import ayarları, pixel-perfect yapılandırma ve GDScript renk paleti</p>
+                                <div class="engine-actions">
+                                    <button class="btn-sm" id="godotSettingsBtn">Import Ayarları</button>
+                                    <button class="btn-sm btn-primary" id="godotExportBtn">Export</button>
+                                </div>
+                            </div>
+
+                            <div class="engine-card" id="engineAseprite">
+                                <div class="engine-icon">🖌️</div>
+                                <h3>Aseprite</h3>
+                                <p data-i18n="aseprite_desc">GPL palet dosyası, sprite sheet JSON ve Aseprite import scriptı</p>
+                                <div class="engine-actions">
+                                    <button class="btn-sm btn-primary" id="asepriteExportBtn">GPL <span data-i18n="palette">Palet</span></button>
+                                    <button class="btn-sm btn-primary" id="asepriteJsonBtn">Import JSON</button>
+                                    <button class="btn-sm" id="asepriteScriptBtn">Lua Script</button>
+                                </div>
+                            </div>
+
+                            <div class="engine-card" id="engineGeneric">
+                                <div class="engine-icon">📦</div>
+                                <h3>Genel</h3>
+                                <p>JSON sprite data, metadata ve texture atlas formatları</p>
+                                <div class="engine-actions">
+                                    <button class="btn-sm btn-primary" id="jsonExportBtn">JSON Export</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-preview" id="exportPreview">
+                            <div class="code-block-wrap hidden" id="codeOutputWrap">
+                                <div class="code-header">
+                                    <span id="codeLabel">Output</span>
+                                    <button class="btn-xs" id="copyCodeBtn"><i class="fas fa-copy"></i> Kopyala</button>
+                                </div>
+                                <pre class="code-block" id="codeOutput"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PROCESSING OVERLAY -->
     <div class="processing-overlay" id="processingOverlay">
-        <div class="processing-content">
-            <div class="spinner"></div>
-            <h3>Piksel Art oluşturuluyor...</h3>
-            <p>Daha iyi sonuçlar için bu işlem biraz uzun sürebilir. Lütfen bekleyin.</p>
+        <div class="processing-box">
+            <div class="proc-progress">
+                <div class="proc-bar" id="procBar"></div>
+            </div>
+            <div class="proc-spinner"></div>
+            <h3 id="procTitle">Pixel Art Oluşturuluyor</h3>
+            <p id="procStatus">Görsel işleniyor...</p>
         </div>
     </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="script.js"></script>
 </body>
