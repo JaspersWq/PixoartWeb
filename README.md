@@ -12,7 +12,7 @@
 ![150x](https://github.com/user-attachments/assets/259b6439-855d-47e7-b0ba-5b44e5728731)
 
 ## https://jasperswq.github.io/PixoartWeb/
-Discord: discord.gg/PHfqYWX3zm
+Discord: https://discord.gg/PHfqYWX3zm
 ---
 
 ## 🚀 Features
